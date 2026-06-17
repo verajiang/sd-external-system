@@ -1,4 +1,4 @@
-import { AlertTriangle, Copy, Crown, KeyRound, Plus, Search, X } from "lucide-react";
+import { AlertTriangle, Copy, Crown, Download, FileCheck2, KeyRound, Plus, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { merchant, teamMembers as initialMembers, teamUsageRecords } from "../data/mock";
 import type { TeamMember } from "../types";
@@ -88,7 +88,7 @@ export function TeamPage({ onToast }: TeamPageProps) {
           />
         )}
         {activeTab === "席位管理" && <SeatsPanel onBuySeats={() => setSeatOpen(true)} />}
-        {activeTab === "子账号消耗" && <UsagePanel members={members} />}
+        {activeTab === "子账号消耗" && <UsagePanel members={members} onToast={onToast} />}
         {activeTab === "成员额度" && <QuotaPanel members={members} setMembers={setMembers} onToast={onToast} />}
       </div>
 
@@ -204,7 +204,21 @@ function SeatsPanel({ onBuySeats }: { onBuySeats: () => void }) {
   );
 }
 
-function UsagePanel({ members }: { members: TeamMember[] }) {
+function exportCsv(fileName: string, headers: string[], rows: Array<Array<string | number | boolean>>) {
+  const escapeCell = (value: string | number | boolean) => `"${String(value).replace(/"/g, '""')}"`;
+  const csv = [headers.map(escapeCell).join(","), ...rows.map((row) => row.map(escapeCell).join(","))].join("\n");
+  const blob = new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function UsagePanel({ members, onToast }: { members: TeamMember[]; onToast: (message: string) => void }) {
   const totals = {
     generations: members.reduce((sum, member) => sum + member.monthlyGenerations, 0),
     credits: members.reduce((sum, member) => sum + member.monthlyCredits, 0),
@@ -213,6 +227,20 @@ function UsagePanel({ members }: { members: TeamMember[] }) {
   const success = teamUsageRecords.filter((record) => record.status === "成功").length;
   const failed = teamUsageRecords.filter((record) => record.status === "失败").length;
   const ranking = [...members].sort((a, b) => b.monthlyCredits - a.monthlyCredits);
+
+  function exportUsageRecords() {
+    exportCsv(
+      "zhiboxing-usage-records.csv",
+      ["时间", "账号", "模式", "视频名称", "真人形象", "消耗额度", "状态", "下载状态"],
+      teamUsageRecords.map((record) => [record.time, record.account, record.mode, record.videoName, record.humanName, record.credits, record.status, record.downloaded ? "已下载" : "未下载"]),
+    );
+    onToast("消耗明细已导出");
+  }
+
+  function reconcileUsage() {
+    const recordCredits = teamUsageRecords.reduce((sum, record) => sum + record.credits, 0);
+    onToast(recordCredits === totals.credits ? "对账通过：明细消耗与成员汇总一致" : `已生成对账结果：明细样例 ${recordCredits} / 成员汇总 ${totals.credits}`);
+  }
 
   return (
     <div className="space-y-4 pb-12">
@@ -226,7 +254,21 @@ function UsagePanel({ members }: { members: TeamMember[] }) {
       </section>
 
       <section className="rounded-[28px] border border-line bg-white p-5 shadow-panel">
-        <div className="mb-4 text-sm font-semibold text-ink">成员排行</div>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-ink">全部子账号消耗排行</div>
+            <div className="mt-1 text-xs text-muted">共 {ranking.length} 个子账号，按本月消耗额度排序。</div>
+          </div>
+        </div>
+        <div className="mb-2 grid grid-cols-[.4fr_1.4fr_1fr_1fr_1fr_1fr_1fr] px-4 text-xs font-semibold text-muted">
+          <span>排名</span>
+          <span>成员</span>
+          <span>本月生成</span>
+          <span>消耗额度</span>
+          <span>成功生成</span>
+          <span>失败生成</span>
+          <span>下载/额度</span>
+        </div>
         <div className="space-y-2">
           {ranking.map((member, index) => (
             <div key={member.id} className="grid grid-cols-[.4fr_1.4fr_1fr_1fr_1fr_1fr_1fr] items-center rounded-2xl bg-canvas px-4 py-3 text-sm">
@@ -243,7 +285,32 @@ function UsagePanel({ members }: { members: TeamMember[] }) {
       </section>
 
       <section className="rounded-[28px] border border-line bg-white p-5 shadow-panel">
-        <div className="mb-4 text-sm font-semibold text-ink">消耗明细</div>
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <div className="text-sm font-semibold text-ink">消耗明细与对账</div>
+            <div className="mt-1 text-xs text-muted">按任务记录核对额度消耗，支持导出对账底表。</div>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <button onClick={exportUsageRecords} className="flex h-9 items-center gap-2 rounded-2xl border border-line bg-white px-3 text-xs font-semibold text-ink hover:border-brand hover:text-brand">
+              <Download size={14} />
+              导出明细
+            </button>
+            <button onClick={reconcileUsage} className="flex h-9 items-center gap-2 rounded-2xl bg-ink px-3 text-xs font-semibold text-white">
+              <FileCheck2 size={14} />
+              生成对账
+            </button>
+          </div>
+        </div>
+        <div className="mb-2 grid grid-cols-[1.3fr_.8fr_.9fr_1.4fr_.8fr_.7fr_.7fr_.7fr] px-4 text-xs font-semibold text-muted">
+          <span>时间</span>
+          <span>账号</span>
+          <span>模式</span>
+          <span>视频名称</span>
+          <span>真人形象</span>
+          <span>消耗额度</span>
+          <span>状态</span>
+          <span>下载状态</span>
+        </div>
         <div className="space-y-2">
           {teamUsageRecords.map((record) => (
             <div key={record.id} className="grid grid-cols-[1.3fr_.8fr_.9fr_1.4fr_.8fr_.7fr_.7fr_.7fr] items-center rounded-2xl bg-canvas px-4 py-3 text-sm">
