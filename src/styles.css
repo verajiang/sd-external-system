@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f7f8fc;
+  color: #212121;
+  font-family:
+    "PingFang SC", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+button,
+select,
+textarea,
+input {
+  font: inherit;
+}
+
+button {
+  letter-spacing: 0;
+}
+
+.shadow-panel,
+.shadow-soft,
+.shadow-sm {
+  box-shadow: 0 1px 2px rgba(18, 31, 67, 0.04) !important;
+}
+
+.rounded-\[32px\],
+.rounded-\[28px\],
+.rounded-\[26px\],
+.rounded-\[24px\],
+.rounded-3xl,
+.rounded-2xl,
+.rounded-xl {
+  border-radius: 4px !important;
+}
+
+.rounded-full {
+  border-radius: 4px !important;
+}
+
+.rounded-\[28px\] .rounded-full,
+.rounded-3xl .rounded-full,
+.rounded-2xl .rounded-full {
+  border-radius: 4px !important;
+}
+
+aside {
+  background: #ffffff !important;
+}
+
+main {
+  background: #f7f8fc;
+}
+
+main > div > .mb-5.flex.items-center.justify-between {
+  margin-bottom: 12px !important;
+  border: 1px solid #e6e6f0;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(18, 31, 67, 0.04);
+}
+
+main > div > .mb-5.flex.flex-wrap {
+  margin-bottom: 12px !important;
+}
+
+h1 {
+  font-size: 16px !important;
+  line-height: 24px !important;
+  font-weight: 500 !important;
+}
+
+.bg-ink {
+  background-color: #2461fb !important;
+}
+
+.text-ink {
+  color: #212121 !important;
+}
+
+.text-muted {
+  color: #6f6f6f !important;
+}
+
+.border-line {
+  border-color: #e6e6f0 !important;
+}
+
+.bg-canvas {
+  background-color: #f7f8fc !important;
+}
+
+.text-brand {
+  color: #2461fb !important;
+}
+
+.bg-brand {
+  background-color: #2461fb !important;
+}
+
+.focus\:border-brand:focus,
+.hover\:border-brand:hover {
+  border-color: #2461fb !important;
+}
+
+.hover\:text-brand:hover {
+  color: #2461fb !important;
+}
+
+input,
+select,
+textarea {
+  border-radius: 4px !important;
+}
+
+table,
+[class*="grid-cols-"] {
+  letter-spacing: 0;
+}
+
+.soft-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.soft-scrollbar::-webkit-scrollbar-thumb {
+  background: #d8dbe6;
+  border-radius: 999px;
+}
