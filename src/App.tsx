@@ -6,12 +6,14 @@ import { GeneratePage } from "./pages/GeneratePage";
 import { LoginPage } from "./pages/LoginPage";
 import { PlatformAdminPage } from "./pages/PlatformAdminPage";
 import { TeamPage } from "./pages/TeamPage";
+import { UsageDetailsPage } from "./pages/UsageDetailsPage";
 import type { PageKey } from "./types";
 
 const pageFromHash = (): PageKey => {
   const value = window.location.hash.replace("#", "");
   if (value === "assets") return "assets";
   if (value.startsWith("team")) return "team";
+  if (value === "usage") return "usage";
   return "generate";
 };
 
@@ -50,15 +52,15 @@ export default function App() {
   }, [toast]);
 
   useEffect(() => {
-    if (user.role !== "管理员" && activePage === "team") {
+    if (user.role !== "管理员" && ["team", "usage"].includes(activePage)) {
       setActivePage("generate");
       window.location.hash = "";
     }
   }, [activePage, user.role]);
 
   function changePage(page: PageKey) {
-    if (page === "team" && user.role !== "管理员") {
-      setToast("普通账号无团队管理权限");
+    if (["team", "usage"].includes(page) && user.role !== "管理员") {
+      setToast("普通账号无管理权限");
       return;
     }
     setActivePage(page);
@@ -70,8 +72,8 @@ export default function App() {
       setToast("普通账号仅可查看自己的生成记录");
       return;
     }
-    window.location.hash = "team:usage";
-    setActivePage("team");
+    window.location.hash = "usage";
+    setActivePage("usage");
   }
 
   function login() {
@@ -127,6 +129,7 @@ export default function App() {
       {activePage === "generate" && <GeneratePage user={user} merchant={visibleMerchant} onToast={setToast} />}
       {activePage === "assets" && <AssetPage user={user} onToast={setToast} />}
       {activePage === "team" && user.role === "管理员" && <TeamPage onToast={setToast} />}
+      {activePage === "usage" && user.role === "管理员" && <UsageDetailsPage onToast={setToast} />}
       {toast && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-white shadow-soft">
           {toast}

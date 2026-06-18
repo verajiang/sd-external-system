@@ -1,4 +1,4 @@
-export type PageKey = "generate" | "assets" | "team";
+export type PageKey = "generate" | "assets" | "team" | "usage";
 
 export type PlatformPageKey = "merchants" | "operations";
 

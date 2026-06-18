@@ -1,4 +1,4 @@
-import { CreditCard, Sparkles, Users, FolderOpen, Crown, KeyRound, LogOut, X } from "lucide-react";
+import { CreditCard, Sparkles, Users, FolderOpen, Crown, KeyRound, LogOut, X, ReceiptText } from "lucide-react";
 import { useState } from "react";
 import type { Merchant, PageKey, User } from "../types";
 import { cx } from "../utils";
@@ -18,12 +18,13 @@ const items: Array<{ key: PageKey; label: string; icon: typeof Sparkles }> = [
   { key: "generate", label: "生成", icon: Sparkles },
   { key: "assets", label: "资产", icon: FolderOpen },
   { key: "team", label: "团队", icon: Users },
+  { key: "usage", label: "消耗明细", icon: ReceiptText },
 ];
 
 export function Sidebar({ activePage, onPageChange, onUsageDetails, merchant, user, quotaLimit, onLogout, onToast }: SidebarProps) {
   const [showPlan, setShowPlan] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const visibleItems = items.filter((item) => item.key !== "team" || user.role === "管理员");
+  const visibleItems = items.filter((item) => !["team", "usage"].includes(item.key) || user.role === "管理员");
   const avatarText = user.name.slice(0, 2).toUpperCase();
   const isAdmin = user.role === "管理员";
 
