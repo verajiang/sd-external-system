@@ -1,5 +1,5 @@
-import { Download, FileCheck2 } from "lucide-react";
-import { teamMembers, teamUsageRecords } from "../data/mock";
+import { Download } from "lucide-react";
+import { teamUsageRecords } from "../data/mock";
 import { cx } from "../utils";
 
 interface UsageDetailsPageProps {
@@ -21,9 +21,6 @@ function exportCsv(fileName: string, headers: string[], rows: Array<Array<string
 }
 
 export function UsageDetailsPage({ onToast }: UsageDetailsPageProps) {
-  const detailCredits = teamUsageRecords.reduce((sum, record) => sum + record.credits, 0);
-  const memberCredits = teamMembers.reduce((sum, member) => sum + member.monthlyCredits, 0);
-
   function exportUsageRecords() {
     exportCsv(
       "zhiboxing-usage-records.csv",
@@ -33,26 +30,18 @@ export function UsageDetailsPage({ onToast }: UsageDetailsPageProps) {
     onToast("消耗明细已导出");
   }
 
-  function reconcileUsage() {
-    onToast(detailCredits === memberCredits ? "对账通过：明细消耗与成员汇总一致" : `已生成对账结果：明细样例 ${detailCredits} / 成员汇总 ${memberCredits}`);
-  }
-
   return (
     <main className="min-h-screen pl-[248px]">
       <div className="mx-auto max-w-[1180px] px-8 py-7">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold text-ink">消耗明细</h1>
-            <p className="mt-1 text-sm text-muted">按生成任务查看全员额度消耗，并导出对账底表。</p>
+            <p className="mt-1 text-sm text-muted">按生成任务查看全员额度消耗，并导出原始流水。</p>
           </div>
           <div className="flex shrink-0 gap-2">
             <button onClick={exportUsageRecords} className="flex h-10 items-center gap-2 rounded-2xl border border-line bg-white px-4 text-sm font-semibold text-ink hover:border-brand hover:text-brand">
               <Download size={16} />
               导出明细
-            </button>
-            <button onClick={reconcileUsage} className="flex h-10 items-center gap-2 rounded-2xl bg-ink px-4 text-sm font-semibold text-white shadow-panel">
-              <FileCheck2 size={16} />
-              生成对账
             </button>
           </div>
         </div>
